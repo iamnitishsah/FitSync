@@ -48,3 +48,11 @@ user_input = get_user_input()
 if st.button("Predict"):
     prediction = predict(user_input, rfmodel)
     st.write(f'Predicted Healthy Lifestyle Score: {prediction:.2f}')
+
+
+st.markdown(
+    """
+    ---
+    Made with ❤️ by [Nitish Sah](https://www.instagram.com/nitishadow/) just for you.
+    """
+)

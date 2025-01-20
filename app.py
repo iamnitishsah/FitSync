@@ -53,6 +53,6 @@ if st.button("Predict"):
 st.markdown(
     """
     ---
-    Made with ❤️ by [Nitish Sah](https://www.instagram.com/nitishadow/) just for you.
+    Made with ❤️ by [Nitish Sah](https://www.instagram.com/nitishadow/) just for youuu.
     """
 )

@@ -24,7 +24,7 @@ To run the project locally, follow these steps:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/Lifestyle-Predictor.git
+   git clone https://github.com/iamnitishsah/LifeStylePredictor.git
    cd Lifestyle-Predictor
    ```
 2. Install dependencies:
@@ -46,5 +46,5 @@ Feel free to fork the repository and submit pull requests with improvements or f
 This project is open-source and available under the MIT License.
 
 ---
-Made with ❤️ by [Your Name]
+Made with ❤️ by [Nitish Sah]
 

@@ -1,6 +1,6 @@
-# Lifestyle Predictor App
+# FitSync
 
-Welcome to the **Lifestyle Predictor App**! This project is a Streamlit-based web application that predicts a user's lifestyle based on input data.
+Welcome to the **FitSync**! This project is a Streamlit-based web application that predicts a user's lifestyle based on input data.
 
 ## 🏗 Features
 - User-friendly interface powered by Streamlit
@@ -9,11 +9,11 @@ Welcome to the **Lifestyle Predictor App**! This project is a Streamlit-based we
 - Deployable on Streamlit Cloud
 
 ## 🚀 Live Demo
-Check out the live application here: [Lifestyle Predictor App](https://nitishlifestylepredictorproject.streamlit.app/)
+Check out the live application here: [FitSync](https://nitishlifestylepredictorproject.streamlit.app/)
 
 ## 📂 Project Structure
 ```
-📦 Lifestyle-Predictor
+📦 FitSync
 ├── 📜 app.py       # Main application file
 ├── 📜 requirements.txt  # Dependencies
 └── 📜 README.md   # Project documentation
@@ -24,8 +24,8 @@ To run the project locally, follow these steps:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/iamnitishsah/LifeStylePredictor.git
-   cd Lifestyle-Predictor
+   git clone https://github.com/iamnitishsah/FitSync.git
+   cd FitSync
    ```
 2. Install dependencies:
    ```sh

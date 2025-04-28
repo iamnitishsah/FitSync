@@ -4,7 +4,6 @@ import pickle
 import numpy as np
 import plotly.graph_objects as go
 from io import StringIO
-import base64
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -33,7 +32,7 @@ def get_health_category(score):
     elif score >= 7:
         return "Very Good", "Great job—small tweaks can take you to the top!"
     elif score >= 6:
-        return "Good", "You’ve got a solid base—ready to level up?"
+        return "Good", "You've got a solid base—ready to level up?"
     elif score >= 5:
         return "Fair", "Some habits need love to unlock your best self."
     else:
@@ -93,39 +92,6 @@ def generate_insights(user_data):
     return insights
 
 
-def get_user_input():
-    st.subheader("Tell Us About You")
-    tabs = st.tabs(["Personal", "Activity", "Nutrition"])
-
-    with tabs[0]:
-        age = st.number_input("Age", 0, 120, 25)
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        weight = st.number_input("Weight (kg)", 0.0, 500.0, 70.0)
-        height = st.number_input("Height (cm)", 0.0, 300.0, 170.0)
-        bmi = round(weight / ((height / 100) ** 2), 1) if height > 0 else 0
-        st.write(f"**BMI:** {bmi}")
-
-    with tabs[1]:
-        daily_steps = st.number_input("Daily Steps", 0, 100000, 5000)
-        exercise_hours = st.number_input("Exercise (h/day)", 0.0, 24.0, 1.0)
-        sleep_hours = st.number_input("Sleep (h/night)", 0.0, 24.0, 8.0)
-
-    with tabs[2]:
-        water_intake = st.number_input("Water (L/day)", 0.0, 20.0, 2.0)
-        calories = st.number_input("Calories/day", 0, 10000, 2000)
-        stress = st.selectbox("Stress Level", ["Low", "Medium", "High"])
-
-    user_df = pd.DataFrame({
-        'Age': [age], 'Daily_Steps': [daily_steps], 'Calories_Consumed': [calories],
-        'Sleep_Hours': [sleep_hours], 'Water_Intake_Liters': [water_intake],
-        'Exercise_Hours': [exercise_hours], 'BMI': [bmi], 'Gender_Male': [1 if gender == "Male" else 0],
-        'Stress_Level_Medium': [1 if stress == "Medium" else 0], 'Stress_Level_High': [1 if stress == "High" else 0],
-        'Height': [height]
-    })
-    transform_df = user_df.drop(columns=['Height'])
-    return scaler.transform(transform_df.values), user_df
-
-
 def plot_radar_chart(user_data):
     categories = ['Sleep', 'Exercise', 'Steps', 'Hydration', 'BMI', 'Nutrition', 'Stress']
     values = [
@@ -133,18 +99,28 @@ def plot_radar_chart(user_data):
         min(user_data['Daily_Steps'][0] / 10000, 1), min(user_data['Water_Intake_Liters'][0] / 3, 1),
         1 - abs((user_data['BMI'][0] - 21.5) / 21.5) if 18.5 <= user_data['BMI'][0] <= 25 else 0.5,
         min(user_data['Calories_Consumed'][0] / calculate_bmr(user_data['Age'][0], user_data['BMI'][0] * (
-                    (user_data['Height'][0] / 100) ** 2), user_data['Height'][0], user_data['Gender_Male'][0]), 1),
+                (user_data['Height'][0] / 100) ** 2), user_data['Height'][0], user_data['Gender_Male'][0]), 1),
         1 if user_data['Stress_Level_High'][0] == 0 and user_data['Stress_Level_Medium'][0] == 0 else 0.5 if
         user_data['Stress_Level_Medium'][0] else 0
     ]
-    fig = go.Figure(data=go.Scatterpolar(r=values + [values[0]], theta=categories + [categories[0]], fill='toself'))
-    fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 1])), showlegend=False,
-                      title="Your Health Profile")
+
+    fig = go.Figure(data=go.Scatterpolar(
+        r=values + [values[0]],
+        theta=categories + [categories[0]],
+        fill='toself'
+    ))
+
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+        showlegend=False,
+        title="Your Health Profile"
+    )
+
     st.plotly_chart(fig)
 
 
 def main():
-    st.title("Healthy Lifestyle Analyzer")
+    st.title("🏥 Healthy Lifestyle Analyzer")
     st.markdown("Unlock your health potential with personalized insights!")
 
     with st.expander("How It Works"):
@@ -154,56 +130,105 @@ def main():
         st.error("Model or scaler not loaded. Please check files.")
         return
 
-    user_input, user_df = get_user_input()
+    st.subheader("📋 Your Health Information")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Analyze My Health"):
-            with st.spinner("Analyzing..."):
-                try:
-                    prediction = rfmodel.predict(user_input)[0]
-                    category, desc = get_health_category(prediction)
+    with st.form("health_data_form"):
+        col1, col2, col3 = st.columns(3)
 
-                    if prediction >= 8:
-                        st.balloons()
+        with col1:
+            st.markdown("**Personal Details**")
+            age = st.number_input("Age", 0, 120, 25)
+            gender = st.selectbox("Gender", ["Male", "Female"])
 
-                    st.subheader("Your Health Snapshot")
+        with col2:
+            st.markdown("**Body Metrics**")
+            weight = st.number_input("Weight (kg)", 0.0, 500.0, 70.0)
+            height = st.number_input("Height (cm)", 0.0, 300.0, 170.0)
+            bmi = round(weight / ((height / 100) ** 2), 1) if height > 0 else 0
+            st.markdown(f"**BMI:** {bmi}")
+
+        with col3:
+            st.markdown("**Activity & Lifestyle**")
+            daily_steps = st.number_input("Daily Steps", 0, 100000, 5000)
+            exercise_hours = st.number_input("Exercise (h/day)", 0.0, 24.0, 1.0)
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.markdown("**Rest & Recovery**")
+            sleep_hours = st.number_input("Sleep (h/night)", 0.0, 24.0, 8.0)
+            stress = st.selectbox("Stress Level", ["Low", "Medium", "High"])
+
+        with col2:
+            st.markdown("**Nutrition**")
+            water_intake = st.number_input("Water (L/day)", 0.0, 20.0, 2.0)
+            calories = st.number_input("Calories/day", 0, 10000, 2000)
+
+        submitted = st.form_submit_button("Analyze My Health")
+
+    user_df = pd.DataFrame({
+        'Age': [age], 'Daily_Steps': [daily_steps], 'Calories_Consumed': [calories],
+        'Sleep_Hours': [sleep_hours], 'Water_Intake_Liters': [water_intake],
+        'Exercise_Hours': [exercise_hours], 'BMI': [bmi], 'Gender_Male': [1 if gender == "Male" else 0],
+        'Stress_Level_Medium': [1 if stress == "Medium" else 0], 'Stress_Level_High': [1 if stress == "High" else 0],
+        'Height': [height]
+    })
+    transform_df = user_df.drop(columns=['Height'])
+    user_input = scaler.transform(transform_df.values)
+
+    if submitted:
+        with st.spinner("Analyzing..."):
+            try:
+                prediction = rfmodel.predict(user_input)[0]
+                category, desc = get_health_category(prediction)
+
+                if prediction >= 8:
+                    st.balloons()
+
+                st.header("Your Health Snapshot")
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.subheader("Health Score")
                     st.progress(prediction / 10)
                     st.metric("Health Score", f"{prediction:.1f}/10", delta=f"{category}")
                     st.write(f"**{desc}**")
 
-                    st.subheader("Insights")
-                    insights = generate_insights(user_df)
-                    for category, items in insights:
-                        with st.expander(category, expanded=True):
-                            for color, insight in items:
-                                getattr(st,
-                                        "success" if color == "green" else "warning" if color == "yellow" else "error")(
-                                    insight)
-
+                with col2:
                     plot_radar_chart(user_df)
 
-                    report = StringIO()
-                    report.write(f"Health Score: {prediction:.1f}/10 - {category}\n\n")
-                    for cat, items in insights:
-                        report.write(f"{cat}:\n")
-                        for _, insight in items:
-                            report.write(f"- {insight}\n")
-                    st.download_button("Download Report", data=report.getvalue(), file_name="health_report.txt",
-                                       mime="text/plain")
+                st.header("Insights")
+                insights = generate_insights(user_df)
+                for category, items in insights:
+                    with st.expander(category, expanded=True):
+                        for color, insight in items:
+                            getattr(st,
+                                    "success" if color == "green" else "warning" if color == "yellow" else "error")(
+                                insight)
 
-                except Exception as e:
-                    st.error(f"Analysis failed: {str(e)}")
-    with col2:
-        if st.button("Reset"):
-            st.session_state.clear()
-            st.rerun()
+                report = StringIO()
+                report.write(f"Health Score: {prediction:.1f}/10 - {category}\n\n")
+                for cat, items in insights:
+                    report.write(f"{cat}:\n")
+                    for _, insight in items:
+                        report.write(f"- {insight}\n")
+                st.download_button("Download Report", data=report.getvalue(), file_name="health_report.txt",
+                                   mime="text/plain")
+
+            except Exception as e:
+                st.error(f"Analysis failed: {str(e)}")
+
+    if st.button("Reset"):
+        st.session_state.clear()
+        st.rerun()
 
     st.sidebar.header("Daily Health Tip")
     tips = ["Drink water first thing!", "Stretch hourly.", "Swap snacks for fruit."]
     st.sidebar.info(np.random.choice(tips))
 
-    st.markdown("---\nCrafted with ❤️ by [Nitish Sah](https://www.linkedin.com/in/iamnitishsah/)")
+    st.markdown("---")
+    st.markdown("Crafted with ❤️ by [Nitish Sah](https://www.linkedin.com/in/iamnitishsah/)")
 
 
 if __name__ == "__main__":

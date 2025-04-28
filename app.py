@@ -203,7 +203,7 @@ def main():
     tips = ["Drink water first thing!", "Stretch hourly.", "Swap snacks for fruit."]
     st.sidebar.info(np.random.choice(tips))
 
-    st.markdown("---\nCrafted with ❤️ by [Nitish Sah](https://www.instagram.com/nitishades/)")
+    st.markdown("---\nCrafted with ❤️ by [Nitish Sah](https://www.linkedin.com/in/iamnitishsah/)")
 
 
 if __name__ == "__main__":
